@@ -3,6 +3,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import Link from 'next/link';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -60,17 +61,19 @@ export default function ProjectsPage() {
       </Card>
       <div className="grid gap-4 md:grid-cols-2">
         {data.map((project) => (
-          <Card key={project._id} className="p-5">
-            <div className="flex items-center gap-3">
-              <span className="rounded-md bg-primary/10 px-2 py-1 text-xs font-bold text-primary">
-                {project.key}
-              </span>
-              <h2 className="font-semibold">{project.name}</h2>
-            </div>
-            <p className="mt-3 text-sm text-slate-500">
-              {project.description || 'No description yet.'}
-            </p>
-          </Card>
+          <Link key={project._id} href={`/projects/${project._id}`}>
+            <Card className="p-5 hover:bg-muted transition-colors h-full">
+              <div className="flex items-center gap-3">
+                <span className="rounded-md bg-primary/10 px-2 py-1 text-xs font-bold text-primary">
+                  {project.key}
+                </span>
+                <h2 className="font-semibold">{project.name}</h2>
+              </div>
+              <p className="mt-3 text-sm text-slate-500">
+                {project.description || 'No description yet.'}
+              </p>
+            </Card>
+          </Link>
         ))}
       </div>
     </div>
