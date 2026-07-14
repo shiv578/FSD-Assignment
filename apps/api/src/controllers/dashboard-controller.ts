@@ -12,9 +12,11 @@ export const dashboard = async (req: Request, res: Response) => {
     .sort({ updatedAt: -1 })
     .limit(6);
   const projectIds = projects.map((project) => project.id);
-  const completedByProject = await Promise.all(
-    projects.map((project) => TaskModel.countDocuments({ project: project.id, status: 'done' })),
-  );
+  const completedCounts = await TaskModel.aggregate([
+    { $match: { project: { $in: projectIds }, status: 'done' } },
+    { $group: { _id: '$project', count: { $sum: 1 } } },
+  ]);
+  const completedTasks = completedCounts.reduce((sum, item) => sum + item.count, 0);
   const [assignedTasks, activity] = await Promise.all([
     TaskModel.find({ assignee: userId, status: { $ne: 'done' } })
       .populate('project', 'name key')
@@ -30,7 +32,7 @@ export const dashboard = async (req: Request, res: Response) => {
     statistics: {
       projects: projects.length,
       assignedTasks: assignedTasks.length,
-      completedTasks: completedByProject.reduce((total, count) => total + count, 0),
+      completedTasks,
     },
     projects,
     assignedTasks,
